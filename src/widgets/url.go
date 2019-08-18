@@ -1,16 +1,16 @@
 package widgets
 
 import (
-	"fmt"
 	"github.com/jroimartin/gocui"
 )
 
 // URL Widget
 type URLWidget struct {
-	name string
-	x, y int
-	w, h int
-	body string
+  *gocui.Gui
+  label string
+  handlers Handlers
+  *Position
+  *Attributes
 }
 
 type URLEditor struct {
@@ -32,29 +32,44 @@ func (url *URLEditor) Edit(v *gocui.View, key gocui.Key, ch rune, mod gocui.Modi
 	}
 }
 
-func NewURLWidget(name string, x, y int, body string) *URLWidget {
-	return &URLWidget{name: name, x: x, y: y, h: 2, w: 100, body: body}
+func NewURLWidget(gui *gocui.Gui, label string) *URLWidget {
+
+  maxX, _ := gui.Size()
+	return &URLWidget{
+         Gui: gui,
+         label: label,
+         Position: &Position{
+          X: 2,
+          Y: 2,
+          H: 4,
+          W: maxX - 3,
+         },
+         Attributes: &Attributes{
+          textColor: gocui.ColorWhite | gocui.AttrBold,
+          // textBgColor: gocui.ColorBlue,
+          hlColor: gocui.ColorBlue | gocui.AttrBold,
+          hlBgColor: gocui.ColorWhite,
+         },
+         handlers: make(Handlers),
+      }
 }
 
-func (w *URLWidget) Layout(g *gocui.Gui) error {
-	v, err := g.SetView(w.name, w.x, w.y, w.x+w.w, w.y+w.h)
+func (u *URLWidget) Draw() {
+	v, err := u.Gui.SetView(u.label, u.X, u.Y, u.W, u.H)
 
 	if err != nil {
 		if err != gocui.ErrUnknownView {
-			return err
+       panic(err)
 		}
 
+    v.Frame = true
 		v.Editable = true
-		v.SetCursor(len(w.body), 0)
+//		v.SetCursor(len(w.body), 0)
 		v.Editor = &URLEditor{}
 		v.Title = "URL"
 
-		if _, err := g.SetCurrentView(w.name); err != nil {
-			return err
+		if _, err := u.Gui.SetCurrentView(u.label); err != nil {
+      panic(err)
 		}
-
-		fmt.Fprintf(v, w.body)
 	}
-
-	return nil
 }

@@ -1,41 +1,57 @@
 package widgets
 
 import (
-	"fmt"
 	"github.com/jroimartin/gocui"
 )
 
 // Body Widget
 type BodyWidget struct {
+  *gocui.Gui
+  label string
+  handlers Handlers
+  *Position
+  *Attributes
 	name string
 	x, y int
 	w, h int
 	body string
 }
 
-func NewBodyWidget(name string, x, y int, body string) *BodyWidget {
-    return &BodyWidget{name: name, x: x, y: y, h: 20, w: 100, body: body }
+func NewBodyWidget(gui *gocui.Gui, label string) *BodyWidget {
+
+    maxX, _ := gui.Size()
+    return &BodyWidget{
+          Gui: gui,
+          label: label,
+          Position: &Position{
+           X: 2,
+           Y: 7,
+           H: 20,
+           W: maxX - 5,
+          },
+          Attributes: &Attributes{
+             textColor: gocui.ColorWhite | gocui.AttrBold,
+             textBgColor: gocui.ColorBlack,
+             hlColor: gocui.ColorBlue | gocui.AttrBold,
+             hlBgColor: gocui.ColorWhite,
+          },
+    }
 }
 
-
-func (w *BodyWidget) Layout(g *gocui.Gui) error {
-	v, err := g.SetView(w.name, w.x, w.y, w.x+w.w, w.y+w.h)
+func (b *BodyWidget) Draw() {
+	v, err := b.Gui.SetView(b.label, b.X, b.Y, b.X+b.W, b.Y+b.H)
 
 	if err != nil {
 		if err != gocui.ErrUnknownView {
-			return err
+       panic(err)
 		}
 
+    v.Frame = true
 		v.Editable = true
-		v.SetCursor(len(w.body), 0)
-		v.Title = "Body"
-
-		if _, err := g.SetCurrentView(w.name); err != nil {
-			return err
-		}
-
-		fmt.Fprintf(v, w.body)
+    v.FgColor = b.textColor
+    v.BgColor = b.textBgColor
+    v.SelFgColor = b.hlColor
+    v.SelBgColor = b.hlBgColor
+		//fmt.Fprintf(v, w.body)
 	}
-
-	return nil
 }

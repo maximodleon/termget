@@ -9,7 +9,6 @@ import (
   "io/ioutil"
 )
 
-var methods widgets.MethodsWidget = widgets.MethodsWidget{Name: "methods", X: 1, Y: 1, H: 7, W: 10}
 
 // TODO: Add shortcut to copy body results
 // to clipboard
@@ -22,12 +21,12 @@ func main() {
 	}
 	defer g.Close()
 
-//	url := widgets.NewURLWidget("url", 20, 1, "https://jsonplaceholder.typicode.com/todos")
-	methods.AddAttribute(gocui.ColorBlack, gocui.ColorWhite, 0, 0)
-//	body := widgets.NewBodyWidget("body", 20, 4, "")
+	url := widgets.NewURLWidget(g, "url") //"https://jsonplaceholder.typicode.com/todos")
+	body := widgets.NewBodyWidget(g, "body")
   helper := widgets.NewHelpBar(g, "help")
   helper.Draw()
-//	g.SetManager(&methods, body, url)
+  body.Draw()
+  url.Draw()
 	g.Cursor = true
 	g.Highlight = true
 	g.SelFgColor = gocui.ColorGreen
@@ -86,7 +85,7 @@ func displayRequestResults(g *gocui.Gui, v *gocui.View) error {
 		}
 	}
 
-	method := methods.GetSelected()
+  method := "GET" //TODO: dynamically get method
 
 	bodyView.Clear()
 	// TODO: send body for POST, PATCH and PUT requests
