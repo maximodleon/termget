@@ -6,14 +6,6 @@ import (
 	"log"
 )
 
-// Methods/Verbs widget
-type Attributes struct {
-	textColor gocui.Attribute
-	textBgColor gocui.Attribute
-	hlColor gocui.Attribute
-	hlBgColor gocui.Attribute
-}
-
 type MethodsWidget struct {
 	Name          string
 	X, Y          int
@@ -24,6 +16,10 @@ type MethodsWidget struct {
 }
 
 var verbs = []string{"GET", "PUT", "PATCH", "POST", "DELETE"}
+
+func (w *MethodsWidget) GetSelected() string{
+   return w.Methods[w.currentMethod]
+}
 
 func (w *MethodsWidget) AddAttribute (textColor, textBgColor, hlColor, hlBgColor gocui.Attribute) *MethodsWidget {
 	w.listColor = &Attributes{
@@ -116,7 +112,6 @@ func (w *MethodsWidget) Layout(g *gocui.Gui) error {
 			}
 			y++
 			h++
-
 		}
 
 		v, _ := g.SetCurrentView(w.Methods[w.currentMethod])

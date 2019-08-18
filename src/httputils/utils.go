@@ -2,22 +2,41 @@ package httputils
 
 import (
  "net/http"
- "io/ioutil"
  "strings"
  )
 
-
-func MakeRequest(url string) (error, string){
+// TODO: receive method (GET, POST, PUT, PATCH, etc)
+// and pass to request handler
+func makeRequest(method, url, body string) (error, *http.Request){
  // Need to strip \n from passed in string to
  // prevent illegal character error
- resp, err := http.Get(strings.TrimSuffix(url, "\n"))
+
+ request, err := http.NewRequest(method, strings.TrimSuffix(url, "\n"), nil)
+ if err != nil {
+    return err, nil
+ }
+
+ return nil, request
+
+}
+
+func getRequestResponse(request *http.Request) (error, *http.Response) {
+ client := &http.Client{}
+ resp, err := client.Do(request)
 
  if err != nil {
-   return err, ""
+   return err, nil
  }
- defer resp.Body.Close()
 
- body, err := ioutil.ReadAll(resp.Body)
+ return nil, resp
+}
 
- return nil, string(body)
+func GetResponse(method, url, body string) (error, *http.Response) {
+    err, request := makeRequest(method, url, body)
+
+    if err != nil {
+     return err, nil
+    }
+
+    return getRequestResponse(request)
 }
