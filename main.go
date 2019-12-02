@@ -3,12 +3,9 @@ package main
 import (
 	"fmt"
 	"github.com/jroimartin/gocui"
-	"httputils"
+	"io/ioutil"
 	"log"
-	"widgets"
-  "io/ioutil"
 )
-
 
 // TODO: Add shortcut to copy body results
 // to clipboard
@@ -21,12 +18,12 @@ func main() {
 	}
 	defer g.Close()
 
-	url := widgets.NewURLWidget(g, "url") //"https://jsonplaceholder.typicode.com/todos")
-	body := widgets.NewBodyWidget(g, "body")
-  helper := widgets.NewHelpBar(g, "help")
-  helper.Draw()
-  body.Draw()
-  url.Draw()
+	url := NewURLWidget(g, "url") //"https://jsonplaceholder.typicode.com/todos")
+	body := NewBodyWidget(g, "body")
+	helper := NewHelpBar(g, "help")
+	helper.Draw()
+	body.Draw()
+	url.Draw()
 	g.Cursor = true
 	g.Highlight = true
 	g.SelFgColor = gocui.ColorGreen
@@ -57,7 +54,7 @@ func toggleView(g *gocui.Gui, v *gocui.View) error {
 		g.Cursor = true
 		return err
 	}
-  _, err := g.SetCurrentView("body")
+	_, err := g.SetCurrentView("body")
 	g.Cursor = false
 	return err
 }
@@ -70,7 +67,7 @@ func quit(g *gocui.Gui, v *gocui.View) error {
 func displayRequestResults(g *gocui.Gui, v *gocui.View) error {
 	// TODO: handle error returnded by View function
 	g.SetCurrentView("body")
-  // TODO: create helper to get view and not repeate these lines?
+	// TODO: create helper to get view and not repeate these lines?
 	bodyView, err := g.View("body")
 	if err != nil {
 		if err != gocui.ErrUnknownView {
@@ -85,23 +82,23 @@ func displayRequestResults(g *gocui.Gui, v *gocui.View) error {
 		}
 	}
 
-  method := "GET" //TODO: dynamically get method
+	method := "GET" //TODO: dynamically get method
 
 	bodyView.Clear()
 	// TODO: send body for POST, PATCH and PUT requests
-	err, response := httputils.GetResponse(method, urlView.Buffer(), "")
+	err, response := GetResponse(method, urlView.Buffer(), "")
 
 	if err != nil {
 		fmt.Fprint(bodyView, err)
 		return nil
 	}
-  defer response.Body.Close()
+	defer response.Body.Close()
 
-  body, err := ioutil.ReadAll(response.Body)
+	body, err := ioutil.ReadAll(response.Body)
 
-  if err != nil {
-   return err
-  }
+	if err != nil {
+		return err
+	}
 
 	fmt.Fprint(bodyView, string(body))
 	//TODO: return correct value
